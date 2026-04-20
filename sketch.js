@@ -10,6 +10,9 @@ function setup() {
 
   // 產生一個與視訊顯示寬高相同的內容層
   pg = createGraphics(width * 0.6, height * 0.6);
+  
+  // 設定文字對齊，讓數值顯示在 20x20 區塊的中央
+  pg.textAlign(CENTER, CENTER);
 }
 
 function draw() {
@@ -21,12 +24,34 @@ function draw() {
 
   // 在 pg (Graphics) 上繪製內容
   pg.clear(); // 清除背景，使 pg 變透明
-  pg.fill(255, 255, 0);
-  pg.noStroke();
-  pg.ellipse(pg.width / 2, pg.height / 2, 50); // 在視訊中央畫一個黃色圓點
-  pg.fill(255);
-  pg.textSize(20);
-  pg.text("Graphics Overlay", 20, 40);
+
+  // 讀取攝影機像素
+  capture.loadPixels();
+
+  if (capture.pixels.length > 0) {
+    let step = 20; // 設定單位大小為 20x20
+    pg.textSize(8);
+    pg.fill(255);
+
+    for (let y = 0; y < pg.height; y += step) {
+      for (let x = 0; x < pg.width; x += step) {
+        // 將 pg 的座標映射回攝影機原始影像的座標
+        let imgX = floor(map(x, 0, pg.width, 0, capture.width));
+        let imgY = floor(map(y, 0, pg.height, 0, capture.height));
+        
+        // 取得該像素在 pixels 陣列中的索引 (RGBA)
+        let index = (imgX + imgY * capture.width) * 4;
+        let r = capture.pixels[index];
+        let g = capture.pixels[index + 1];
+        let b = capture.pixels[index + 2];
+        
+        let avg = floor((r + g + b) / 3);
+
+        // 在該單位位置顯示平均值
+        pg.text(avg, x + step / 2, y + step / 2);
+      }
+    }
+  }
 
   // 計算置中位置
   let x = (width - vWidth) / 2;
