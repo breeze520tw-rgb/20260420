@@ -19,8 +19,14 @@ function draw() {
   let x = (width - vWidth) / 2;
   let y = (height - vHeight) / 2;
 
-  // 繪製影像到畫布上
+  push();
+  // 將座標系統移動到畫布右側，並水平翻轉 (scale -1)
+  translate(width, 0);
+  scale(-1, 1);
+
+  // 繪製影像到畫布上，此時座標系統已翻轉，影像會呈現鏡像效果
   image(capture, x, y, vWidth, vHeight);
+  pop();
 }
 
 function windowResized() {
